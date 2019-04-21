@@ -458,10 +458,14 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third-party/gtest-1.7.0/fused-src)
+if(WITH_TESTS)
+  include_directories(SYSTEM ${PROJECT_SOURCE_DIR}/third-party/gtest-1.7.0/fused-src)
+endif(WITH_TESTS)
 find_package(Threads REQUIRED)
 
-add_subdirectory(third-party/gtest-1.7.0/fused-src/gtest)
+if(WITH_TESTS)
+  add_subdirectory(third-party/gtest-1.7.0/fused-src/gtest)
+endif(WITH_TESTS)
 
 # Main library source code
 
@@ -985,7 +989,7 @@ if(WITH_TESTS)
   if(WITH_LIBRADOS)
     list(APPEND TESTS utilities/env_librados_test.cc)
   endif()
-
+if(WITH_TESTS)
   set(BENCHMARKS
     cache/cache_bench.cc
     memtable/memtablerep_bench.cc
@@ -1000,7 +1004,7 @@ if(WITH_TESTS)
       $<TARGET_OBJECTS:testharness>)
     target_link_libraries(${exename}${ARTIFACT_SUFFIX} gtest ${LIBS})
   endforeach(sourcefile ${BENCHMARKS})
-
+endif(WITH_TESTS)
   # For test util library that is build only in DEBUG mode
   # and linked to tests. Add test only code that is not #ifdefed for Release here.
   set(TESTUTIL_SOURCE
@@ -1026,7 +1030,7 @@ if(WITH_TESTS)
 
   # Tests are excluded from Release builds
   set(TEST_EXES ${TESTS})
-
+if(WITH_TESTS)
   foreach(sourcefile ${TEST_EXES})
       get_filename_component(exename ${sourcefile} NAME_WE)
       add_executable(${CMAKE_PROJECT_NAME}_${exename}${ARTIFACT_SUFFIX} ${sourcefile}
@@ -1043,7 +1047,7 @@ if(WITH_TESTS)
         add_dependencies(check ${CMAKE_PROJECT_NAME}_${exename}${ARTIFACT_SUFFIX})
       endif()
   endforeach(sourcefile ${TEST_EXES})
-
+endif(WITH_TESTS)
   # C executables must link to a shared object
   set(C_TESTS db/c_test.c)
   set(C_TEST_EXES ${C_TESTS})
